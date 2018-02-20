@@ -1,5 +1,6 @@
 (ns clucie.document
-  (:import [org.apache.lucene.document Document Field FieldType]
+  (:import [org.apache.lucene.document Document Field Field$Store FieldType
+                                       StringField]
            [org.apache.lucene.index IndexOptions]))
 
 (defn- estimate-value
@@ -37,6 +38,19 @@
   ([key value opts]
    (let [{:keys [^String value]} (estimate-value value)]
      (Field. (name key) value (field-type opts)))))
+
+(defn ^StringField string-field
+  "Creates an org.apache.lucene.document.StringField from key and value. This
+  field is indexed but not tokenized: the entire String value is indexed as a
+  single token. Set true to stored? if this field should be stored, else false,
+  default true."
+  ([key value] (string-field key value true))
+  ([key ^String value stored?]
+   (let [^Field$Store stored (cond
+                               (true? stored?) Field$Store/YES
+                               (false? stored?) Field$Store/NO
+                               :else stored?)]
+     (StringField. (name key) value stored))))
 
 (defn ^Document document
   "Creates an org.apache.lucene.document.Document from a map. The map can

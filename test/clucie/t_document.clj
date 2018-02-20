@@ -39,6 +39,22 @@
   (fact "throws exception"
     (doc/field nil "123") => (throws Exception)))
 
+(facts "string-field"
+  (tabular
+   (fact "returns org.apache.lucene.document.StringField"
+     (doc/string-field ?k ?v ?s) => #(instance? StringField %))
+   ?k    ?v    ?s
+   :key  "123" true
+   "key" ""    false
+   :key  "123" Field$Store/NO)
+  (tabular
+   (fact "throws exception"
+     (doc/string-field ?k ?v ?s) => (throws Exception))
+   ?k   ?v    ?s
+   nil  "123" true
+   :key 123   true
+   :key "123" "true"))
+
 (facts "document"
   (tabular
    (fact "returns org.apache.lucene.document.Document"
