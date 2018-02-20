@@ -1,6 +1,6 @@
 (ns clucie.document
   (:import [org.apache.lucene.document Document Field Field$Store FieldType
-                                       StringField]
+                                       StringField TextField]
            [org.apache.lucene.index IndexOptions]))
 
 (defn- estimate-value
@@ -38,6 +38,18 @@
   ([key value opts]
    (let [{:keys [^String value]} (estimate-value value)]
      (Field. (name key) value (field-type opts)))))
+
+(defn ^TextField text-field
+  "Creates an org.apache.lucene.document.TextField from key and value. This
+  field is indexed and tokenized without term vectors. Set true to stored? if
+  this field should be stored, else false, default true."
+  ([key value] (text-field key value true))
+  ([key ^String value stored?]
+   (let [^Field$Store stored (cond
+                               (true? stored?) Field$Store/YES
+                               (false? stored?) Field$Store/NO
+                               :else stored?)]
+     (TextField. (name key) value stored))))
 
 (defn ^StringField string-field
   "Creates an org.apache.lucene.document.StringField from key and value. This
